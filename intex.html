@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAAC Criterion I – Document Collection Portal</title>
+<style>
+  :root {
+    --naac-green: #4a7c3f;
+    --naac-dark: #1a2e1a;
+    --naac-gold: #c8960c;
+    --naac-light: #f4f9f0;
+    --naac-border: #c5d9be;
+    --naac-card: #ffffff;
+    --naac-muted: #5a6e54;
+    --naac-danger: #b91c1c;
+    --naac-info: #1d6fa5;
+    --naac-success: #166534;
+    --sidebar-w: 280px;
+    --font-main: 'Georgia', serif;
+    --font-ui: 'Segoe UI', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-ui);
+    background: #eef3eb;
+    color: #1a2e1a;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    background: var(--naac-dark);
+    color: #d4e8ce;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    background: var(--naac-green);
+    padding: 18px 16px 14px;
+    border-bottom: 3px solid var(--naac-gold);
+  }
+  .sidebar-header .logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .naac-badge {
+    background: var(--naac-gold);
+    color: #1a0a00;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+  .sidebar-header h2 {
+    font-size: 12px;
+    font-weight: 500;
+    color: #c5dfc0;
+    line-height: 1.4;
+    font-family: var(--font-ui);
+  }
+
+  .sidebar-section-title {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7a9e72;
+    padding: 14px 16px 6px;
+    font-weight: 600;
+  }
+
+  .nav-group { margin-bottom: 4px; }
+  .nav-group-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--naac-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+  }
+  .nav-item {
+    display: block;
+    padding: 8px 16px 8px 30px;
+    font-size: 13px;
+    color: #b8d4b2;
+    text-decoration: none;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active {
+    background: rgba(200,150,12,0.15);
+    border-left-color: var(--naac-gold);
+    color: #f0d060;
+    font-weight: 600;
+  }
+  .nav-item .metric-code {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 11px;
+    margin-right: 4px;
+    font-weight: 700;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 11px;
+    color: #5a7a54;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    background: var(--naac-green);
+    color: #fff;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--naac-gold);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .top-bar h1 { font-size: 16px; font-weight: 600; font-family: var(--font-ui); }
+  .top-bar .breadcrumb { font-size: 12px; color: #b8ddb0; margin-top: 2px; }
+  .top-bar .drive-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px;
+    background: rgba(0,0,0,0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .top-bar .drive-status:hover { background: rgba(0,0,0,0.35); }
+  .drive-dot { width: 8px; height: 8px; border-radius: 50%; background: #f0d060; }
+  .drive-dot.connected { background: #4ade80; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* ── PAGE ── */
+  .page { display: none; padding: 28px 32px 48px; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  /* Dashboard */
+  .dashboard-hero {
+    background: linear-gradient(135deg, var(--naac-dark) 0%, #2d5a27 100%);
+    border-radius: 12px;
+    padding: 32px;
+    color: #fff;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dashboard-hero::before {
+    content: 'NAAC';
+    position: absolute; right: -10px; top: -20px;
+    font-size: 120px; font-weight: 900;
+    color: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+  .dashboard-hero h2 { font-size: 22px; margin-bottom: 6px; }
+  .dashboard-hero p { color: #9ecf96; font-size: 14px; line-height: 1.7; }
+  .hero-badge {
+    display: inline-block;
+    background: var(--naac-gold);
+    color: #1a0a00;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .stat-num { font-size: 28px; font-weight: 700; color: var(--naac-green); }
+  .stat-card .stat-label { font-size: 11px; color: var(--naac-muted); margin-top: 4px; }
+
+  .ki-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .ki-card {
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-left: 4px solid var(--naac-green);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .ki-card:hover { box-shadow: 0 4px 16px rgba(74,124,63,0.15); transform: translateY(-2px); }
+  .ki-card h3 { font-size: 14px; color: var(--naac-dark); margin-bottom: 4px; }
+  .ki-card p { font-size: 12px; color: var(--naac-muted); }
+  .ki-card .ki-metrics { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .ki-chip {
+    background: var(--naac-light);
+    border: 1px solid var(--naac-border);
+    color: var(--naac-green);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ki-chip:hover { background: var(--naac-green); color: #fff; }
+
+  /* Metric Page */
+  .metric-header {
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-top: 4px solid var(--naac-green);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .metric-header .metric-code-big {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--naac-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .metric-header h2 { font-size: 18px; color: var(--naac-dark); margin-bottom: 8px; line-height: 1.4; }
+  .metric-header .metric-desc { font-size: 13px; color: var(--naac-muted); line-height: 1.7; }
+  .metric-meta { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .metric-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 500;
+  }
+  .tag-weight { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .tag-type { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+  .tag-ki { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+  /* Upload Section */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--naac-green);
+    border-bottom: 2px solid var(--naac-border);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .year-badge {
+    background: var(--naac-green);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .years-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-radius: 8px;
+    padding: 6px;
+    flex-wrap: wrap;
+  }
+  .year-tab {
+    padding: 7px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--naac-muted);
+    transition: all 0.15s;
+    background: none;
+  }
+  .year-tab:hover { background: var(--naac-light); color: var(--naac-dark); }
+  .year-tab.active {
+    background: var(--naac-green);
+    color: #fff;
+    border-color: var(--naac-green);
+    font-weight: 600;
+  }
+
+  .year-panel { display: none; }
+  .year-panel.active { display: block; }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .doc-card {
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .doc-card:hover { box-shadow: 0 2px 12px rgba(74,124,63,0.12); }
+  .doc-card-header {
+    background: var(--naac-light);
+    border-bottom: 1px solid var(--naac-border);
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .doc-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: var(--naac-green);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .doc-card-header .doc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--naac-dark);
+    line-height: 1.3;
+  }
+  .doc-card-header .doc-sub {
+    font-size: 11px;
+    color: var(--naac-muted);
+    margin-top: 2px;
+  }
+  .doc-required {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--naac-danger);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .doc-card-body { padding: 12px 14px; }
+
+  .upload-zone {
+    border: 2px dashed var(--naac-border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafcf8;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--naac-green);
+    background: var(--naac-light);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-zone .up-icon { font-size: 22px; margin-bottom: 4px; }
+  .upload-zone .up-text { font-size: 12px; color: var(--naac-muted); }
+  .upload-zone .up-hint { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  .upload-zone.has-file {
+    border-color: var(--naac-success);
+    background: #f0fdf4;
+  }
+  .file-info {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  .file-info .fi-name { font-size: 12px; color: var(--naac-success); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-info .fi-size { font-size: 11px; color: #6b7280; flex-shrink: 0; }
+  .file-remove { background: none; border: none; cursor: pointer; color: #ef4444; font-size: 14px; flex-shrink: 0; }
+
+  .drive-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--naac-green);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .drive-btn:hover { background: var(--naac-green); color: #fff; border-color: var(--naac-green); }
+  .drive-btn svg { width: 16px; height: 16px; }
+
+  .notes-box {
+    width: 100%;
+    border: 1px solid var(--naac-border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: var(--font-ui);
+    color: var(--naac-dark);
+    resize: vertical;
+    min-height: 52px;
+    background: #fafcf8;
+    margin-top: 8px;
+  }
+  .notes-box:focus { outline: 2px solid var(--naac-green); border-color: transparent; }
+
+  .year-summary {
+    background: #fff;
+    border: 1px solid var(--naac-border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .year-summary .ys-label { font-size: 13px; color: var(--naac-muted); }
+  .progress-bar-wrap {
+    flex: 1;
+    background: var(--naac-light);
+    border-radius: 20px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar { height: 100%; background: var(--naac-green); border-radius: 20px; transition: width 0.4s; }
+  .ys-pct { font-size: 13px; font-weight: 700; color: var(--naac-green); min-width: 40px; text-align: right; }
+
+  /* Auth modal */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    width: 420px;
+    max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal h3 { font-size: 18px; margin-bottom: 8px; color: var(--naac-dark); }
+  .modal p { font-size: 13px; color: var(--naac-muted); line-height: 1.7; margin-bottom: 20px; }
+  .google-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: #4285F4;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s;
+  }
+  .google-btn:hover { background: #3367D6; }
+  .modal-skip {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: none;
+    border: 1px solid var(--naac-border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--naac-muted);
+    cursor: pointer;
+  }
+  .modal-skip:hover { background: var(--naac-light); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--naac-dark);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 300;
+    animation: slideUp 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
+    max-width: 360px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.success { background: #166534; }
+  .toast.error { background: var(--naac-danger); }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:none;opacity:1} }
+
+  /* Drive link area */
+  .drive-link-area {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+  .drive-link-area.show { display: flex; }
+  .drive-link-area a {
+    color: var(--naac-success);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    word-break: break-all;
+  }
+  .drive-link-area a:hover { text-decoration: underline; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #main { margin-left: 0; }
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .ki-overview-grid { grid-template-columns: 1fr; }
+  }
+
+  .completed-stamp {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+
+  .nav-progress {
+    display: inline-block;
+    background: var(--naac-gold);
+    color: #1a0a00;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    margin-left: auto;
+  }
+
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--naac-border);
+    margin-top: 10px;
+  }
+  table.data-table th {
+    background: var(--naac-green);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table.data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--naac-border);
+    color: var(--naac-dark);
+    vertical-align: top;
+  }
+  table.data-table tr:last-child td { border-bottom: none; }
+  table.data-table tr:hover td { background: var(--naac-light); }
+  table.data-table input[type="number"], table.data-table input[type="text"] {
+    border: 1px solid var(--naac-border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 12px;
+    width: 90px;
+    background: #fafcf8;
+  }
+
+  .action-bar {
+    display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--naac-green); color: #fff; }
+  .btn-primary:hover { background: #3a6230; }
+  .btn-secondary { background: #fff; color: var(--naac-green); border: 1px solid var(--naac-border); }
+  .btn-secondary:hover { background: var(--naac-light); }
+  .btn-gold { background: var(--naac-gold); color: #1a0a00; }
+  .btn-gold:hover { background: #a07808; }
+
+  .info-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid var(--naac-info);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1e40af;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid var(--naac-gold);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="naac-badge">NAAC</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;">SSR Document Portal</div>
+        <div style="font-size:11px;color:#9ecf96;">Teacher Education Institution</div>
+      </div>
+    </div>
+    <h2>Criterion I – Curricular Aspects<br><span style="color:#f0d060;">Total Weightage: 105</span></h2>
+  </div>
+
+  <div class="sidebar-section-title">Navigation</div>
+
+  <div class="nav-group">
+    <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">🏠 Dashboard & Overview</div>
+  </div>
+
+  <div class="sidebar-section-title">Key Indicator 1.1 – Curriculum Planning (25)</div>
+  <div class="nav-group">
+    <div class="nav-item" onclick="showPage('m111')" id="nav-m111"><span class="metric-code">1.1.1</span> Curriculum Planning & Review</div>
+    <div class="nav-item" onclick="showPage('m112')" id="nav-m112"><span class="metric-code">1.1.2</span> Collaborative Curriculum Planning</div>
+    <div class="nav-item" onclick="showPage('m113')" id="nav-m113"><span class="metric-code">1.1.3</span> PLOs & CLOs Communication</div>
+  </div>
+
+  <div class="sidebar-section-title">Key Indicator 1.2 – Academic Flexibility (40)</div>
+  <div class="nav-group">
+    <div class="nav-item" onclick="showPage('m121')" id="nav-m121"><span class="metric-code">1.2.1</span> Optional / Elective Courses</div>
+    <div class="nav-item" onclick="showPage('m122')" id="nav-m122"><span class="metric-code">1.2.2</span> Value-Added Courses</div>
+    <div class="nav-item" onclick="showPage('m123')" id="nav-m123"><span class="metric-code">1.2.3</span> Students in Value-Added Courses</div>
+    <div class="nav-item" onclick="showPage('m124')" id="nav-m124"><span class="metric-code">1.2.4</span> Self-Study Course Facilitation</div>
+    <div class="nav-item" onclick="showPage('m125')" id="nav-m125"><span class="metric-code">1.2.5</span> Students Completing Self-Study</div>
+  </div>
+
+  <div class="sidebar-section-title">Key Indicator 1.3 – Curriculum Enrichment (25)</div>
+  <div class="nav-group">
+    <div class="nav-item" onclick="showPage('m131')" id="nav-m131"><span class="metric-code">1.3.1</span> Knowledge, Skills & Values</div>
+    <div class="nav-item" onclick="showPage('m132')" id="nav-m132"><span class="metric-code">1.3.2</span> Diversity in School Systems</div>
+    <div class="nav-item" onclick="showPage('m133')" id="nav-m133"><span class="metric-code">1.3.3</span> Professional Readiness</div>
+  </div>
+
+  <div class="sidebar-section-title">Key Indicator 1.4 – Feedback System (15)</div>
+  <div class="nav-group">
+    <div class="nav-item" onclick="showPage('m141')" id="nav-m141"><span class="metric-code">1.4.1</span> Structured Feedback Mechanism</div>
+    <div class="nav-item" onclick="showPage('m142')" id="nav-m142"><span class="metric-code">1.4.2</span> Feedback Action Taken Report</div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div style="margin-bottom:6px;font-size:12px;color:#7a9e72;font-weight:600;">Academic Years: 2020–2025</div>
+    Documents saved to Google Drive<br>
+    NAAC SSR – Teacher Education
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="top-bar">
+    <div>
+      <div class="top-bar h1" id="topTitle">Dashboard</div>
+      <div class="breadcrumb" id="topBreadcrumb">NAAC SSR → Criterion I → Overview</div>
+    </div>
+    <div class="drive-status" onclick="showAuthModal()" id="driveStatusBtn">
+      <div class="drive-dot" id="driveDot"></div>
+      <span id="driveStatusText">Connect Google Drive</span>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="dashboard-hero">
+      <div class="hero-badge">NAAC Institutional Accreditation – Teacher Education</div>
+      <h2>Criterion I – Curricular Aspects Document Portal</h2>
+      <p>Centralised document collection for all 13 metrics across 4 Key Indicators. Upload your evidence documents for each academic year and save directly to Google Drive for seamless SSR preparation.</p>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="showAuthModal()">🔗 Connect Google Drive</button>
+        <button class="btn btn-secondary" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);" onclick="showPage('m111')">Start Uploading →</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">13</div><div class="stat-label">Total Metrics</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Key Indicators</div></div>
+      <div class="stat-card"><div class="stat-num">105</div><div class="stat-label">Total Weightage</div></div>
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Academic Years</div></div>
+    </div>
+
+    <div class="ki-overview-grid">
+      <div class="ki-card" onclick="showPage('m111')">
+        <h3>📋 Key Indicator 1.1 – Curriculum Planning</h3>
+        <p>Board of Studies, Academic Council, Planning documents, PLOs/CLOs</p>
+        <div class="ki-metrics">
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m111')">1.1.1</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m112')">1.1.2</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m113')">1.1.3</span>
+          <span style="font-size:11px;color:#6b7280;align-self:center;">Weightage: 25</span>
+        </div>
+      </div>
+      <div class="ki-card" onclick="showPage('m121')">
+        <h3>📚 Key Indicator 1.2 – Academic Flexibility</h3>
+        <p>Elective courses, value-added courses, self-study facilitation</p>
+        <div class="ki-metrics">
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m121')">1.2.1</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m122')">1.2.2</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m123')">1.2.3</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m124')">1.2.4</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m125')">1.2.5</span>
+          <span style="font-size:11px;color:#6b7280;align-self:center;">Weightage: 40</span>
+        </div>
+      </div>
+      <div class="ki-card" onclick="showPage('m131')">
+        <h3>🎓 Key Indicator 1.3 – Curriculum Enrichment</h3>
+        <p>Knowledge & skills activities, diversity exposure, professional readiness</p>
+        <div class="ki-metrics">
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m131')">1.3.1</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m132')">1.3.2</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m133')">1.3.3</span>
+          <span style="font-size:11px;color:#6b7280;align-self:center;">Weightage: 25</span>
+        </div>
+      </div>
+      <div class="ki-card" onclick="showPage('m141')">
+        <h3>📝 Key Indicator 1.4 – Feedback System</h3>
+        <p>Structured feedback forms, analysis reports, action taken reports</p>
+        <div class="ki-metrics">
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m141')">1.4.1</span>
+          <span class="ki-chip" onclick="event.stopPropagation();showPage('m142')">1.4.2</span>
+          <span style="font-size:11px;color:#6b7280;align-self:center;">Weightage: 15</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:20px;">
+      <strong>How to use this portal:</strong> Click any metric from the sidebar or above. Each metric page has 5 yearly tabs (2020–21 to 2024–25). Upload required documents per year, enter data values, add notes, and click "Save to Google Drive" to organise files in your institutional Drive folder.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       METRIC PAGES – Generated dynamically by JS
+  ═══════════════════════════════════════════════ -->
+  <div id="metric-pages-container"></div>
+</div>
+
+<!-- Google Drive Auth Modal -->
+<div class="modal-bg" id="authModal" style="display:none;">
+  <div class="modal">
+    <div style="text-align:center;margin-bottom:16px;font-size:36px;">☁️</div>
+    <h3>Connect Google Drive</h3>
+    <p>Sign in with your institutional Gmail account to enable automatic saving of all uploaded documents to a dedicated NAAC SSR folder in your Google Drive.</p>
+    <div class="warn-box" style="margin-bottom:16px;">
+      <strong>Note:</strong> After clicking the button below, Google will ask for permission to access your Drive. All files will be stored in a folder named <code>NAAC_SSR_Criterion_I</code> in your Drive.
+    </div>
+    <button class="google-btn" onclick="connectDrive()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Sign in with Google (Institutional Gmail)
+    </button>
+    <button class="modal-skip" onclick="closeModal()">Continue without Drive (local only)</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA – All 13 Metrics Configuration
+// ═══════════════════════════════════════════════════
+const YEARS = ['2020-21','2021-22','2022-23','2023-24','2024-25'];
+const CURRENT_YEAR = '2024-25';
+
+const METRICS = {
+  m111: {
+    code: '1.1.1', ki: '1.1', type: 'QlM', weight: 8,
+    title: 'Curriculum Planning, Review & Revision',
+    desc: 'Institution has a regular in-house practice of planning and/or reviewing, revising curriculum and adapting it to local context/situation. Describe the institutional process in not more than 500 words.',
+    narrative: true,
+    narrativePrompt: 'Describe the institutional process of planning and/or reviewing, revising curriculum and adapting to local context (max 500 words):',
+    docs: [
+      { id: 'bos_minutes', name: 'Board of Studies (BOS) Minutes', sub: 'Signed minutes with agenda & resolutions', icon: '📋', required: true },
+      { id: 'ac_minutes', name: 'Academic Council Minutes', sub: 'AC meeting minutes with curriculum decisions', icon: '🏛️', required: true },
+      { id: 'curriculum_plan', name: 'Curriculum Planning Document', sub: 'Annual curriculum plan with local adaptations', icon: '📄', required: true },
+      { id: 'revision_notice', name: 'Revision Notification / Circular', sub: 'Communication to faculty & students about revisions', icon: '📢', required: true },
+      { id: 'local_adaptation', name: 'Local Context Adaptation Report', sub: 'Evidence of local/contextual curriculum adaptation', icon: '🗺️', required: false },
+      { id: 'mid_course', name: 'Mid-Course Correction Plans', sub: 'Documents showing corrections made during the year', icon: '🔄', required: false },
+      { id: 'meeting_notice', name: 'Meeting Notices & Agenda', sub: 'Notices of BOS / AC / Planning meetings', icon: '📬', required: false },
+      { id: 'any_other_111', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m112: {
+    code: '1.1.2', ki: '1.1', type: 'QnM', weight: 8,
+    title: 'Collaborative Curriculum Planning',
+    desc: 'At the institution level, curriculum planning is a collaborative effort. Indicate persons involved in curriculum planning during the last completed academic year.',
+    stakeholders: ['Faculty of the institution','Head/Principal','Practice Teaching Schools','Employers','Experts','Students','Alumni'],
+    docs: [
+      { id: 'data_template', name: 'Data Template (NAAC Format)', sub: 'Filled data template as prescribed by NAAC', icon: '📊', required: true },
+      { id: 'participants_list', name: 'List of Participants', sub: 'Names & designations of all persons in curriculum planning', icon: '👥', required: true },
+      { id: 'meeting_minutes', name: 'Meeting Minutes', sub: 'Minutes of in-house curriculum planning meetings', icon: '📋', required: true },
+      { id: 'meeting_notice_112', name: 'Meeting Notices', sub: 'Official notices of curriculum planning meetings', icon: '📬', required: true },
+      { id: 'poa_document', name: 'Programme of Action (PoA)', sub: 'PoA for in-house curriculum adopted in last year', icon: '📑', required: true },
+      { id: 'bos_112', name: 'BOS Composition & Order', sub: 'Official order of BOS composition with stakeholders', icon: '🏛️', required: false },
+      { id: 'expert_invites', name: 'Expert Invitation Letters', sub: 'Invitation letters to external experts', icon: '✉️', required: false },
+      { id: 'any_other_112', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m113: {
+    code: '1.1.3', ki: '1.1', type: 'QnM', weight: 9,
+    title: 'Programme & Course Learning Outcomes (PLOs & CLOs)',
+    desc: 'While planning, focus is on Programme Learning Outcomes (PLOs) and Course Learning Outcomes (CLOs) for all programmes, stated and communicated through website, prospectus, induction, orientation.',
+    stakeholders: ['Website of the Institution','Prospectus','Student induction programme','Orientation programme for teachers'],
+    docs: [
+      { id: 'data_template_113', name: 'Data Template (NAAC Format)', sub: 'Filled data template as per NAAC', icon: '📊', required: true },
+      { id: 'website_screenshot', name: 'Website Screenshot / URL', sub: 'Screenshot or URL of webpage listing PLOs and CLOs', icon: '🌐', required: true },
+      { id: 'prospectus', name: 'Prospectus', sub: 'Prospectus for last completed academic year with PLOs/CLOs', icon: '📖', required: true },
+      { id: 'induction_report', name: 'Student Induction Programme Report', sub: 'Report with photographs, caption and date', icon: '🎓', required: true },
+      { id: 'orientation_report', name: 'Teacher Orientation Programme Report', sub: 'Report with photographs, caption and date', icon: '👨‍🏫', required: true },
+      { id: 'plo_clo_list', name: 'PLOs & CLOs Document', sub: 'Compiled list of all Programme and Course Learning Outcomes', icon: '📝', required: true },
+      { id: 'any_other_113', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m121: {
+    code: '1.2.1', ki: '1.2', type: 'QnM', weight: 9,
+    title: 'Optional / Elective & Pedagogy Courses Offered',
+    desc: 'Curriculum provides adequate choice of optional/elective courses including pedagogy courses. Metric measures percentage of electives offered vs. available as per syllabus.',
+    hasTable: true,
+    tableType: 'elective',
+    docs: [
+      { id: 'data_template_121', name: 'Data Template (NAAC Format)', sub: 'Filled data template with course counts', icon: '📊', required: true },
+      { id: 'univ_circular', name: 'University Circular – Approved Electives', sub: 'University circular showing approved optional/elective/pedagogy courses', icon: '🏫', required: true },
+      { id: 'academic_calendar', name: 'Academic Calendar', sub: 'Calendar showing time allotted for elective/pedagogy courses', icon: '📅', required: true },
+      { id: 'syllabus_elective', name: 'Syllabus of Elective Courses', sub: 'Copies of elective/pedagogy course syllabi', icon: '📚', required: true },
+      { id: 'timetable_elective', name: 'Time Table (Elective Slots)', sub: 'Time table showing slots for elective courses', icon: '🕐', required: false },
+      { id: 'any_other_121', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m122: {
+    code: '1.2.2', ki: '1.2', type: 'QnM', weight: 9,
+    title: 'Average Number of Value-Added Courses',
+    desc: 'Average number of value-added courses offered during the last five years.',
+    hasTable: true,
+    tableType: 'vac',
+    docs: [
+      { id: 'data_template_122', name: 'Data Template (NAAC Format)', sub: 'Filled data template with VAC count per year', icon: '📊', required: true },
+      { id: 'vac_brochure', name: 'VAC Brochure / Prospectus', sub: 'Brochure with course content and CLOs of VACs', icon: '📰', required: true },
+      { id: 'vac_schedule', name: 'VAC Schedule / Timetable', sub: 'Schedule showing VAC sessions', icon: '📅', required: true },
+      { id: 'vac_attendance', name: 'Attendance Registers (VAC)', sub: 'Attendance sheets for each value-added course', icon: '✅', required: true },
+      { id: 'vac_completion', name: 'Completion Certificates', sub: 'Sample completion certificates issued to students', icon: '🎖️', required: false },
+      { id: 'vac_resource', name: 'Resource Person Details', sub: 'Profile of resource persons / guest lecturers for VACs', icon: '👤', required: false },
+      { id: 'any_other_122', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m123: {
+    code: '1.2.3', ki: '1.2', type: 'QnM', weight: 7,
+    title: 'Students Enrolled in Value-Added Courses',
+    desc: 'Percentage of students enrolled in value-added courses mentioned at 1.2.2 during the last five years.',
+    hasTable: true,
+    tableType: 'vac_students',
+    docs: [
+      { id: 'enrolled_list', name: 'Student Enrolment List (VAC)', sub: 'List of students enrolled in each VAC per year', icon: '📋', required: true },
+      { id: 'completion_certs', name: 'Course Completion Certificates', sub: 'Certificates issued to students completing VAC', icon: '🎖️', required: true },
+      { id: 'total_students', name: 'Total Students on Roll', sub: 'Official roll strength for each year', icon: '👩‍🎓', required: true },
+      { id: 'vac_register', name: 'VAC Admission Register', sub: 'Official register of VAC admissions', icon: '📒', required: false },
+      { id: 'any_other_123', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m124: {
+    code: '1.2.4', ki: '1.2', type: 'QnM', weight: 8,
+    title: 'Self-Study Course Facilitation',
+    desc: 'Students are encouraged and facilitated to undergo self-study courses online/offline through timetable provisions, library, computer labs, and academic guidance.',
+    stakeholders: ['Provision in the Time Table','Facilities in the Library','Computer Lab Facilities','Academic Advice / Guidance'],
+    docs: [
+      { id: 'data_template_124', name: 'Data Template (NAAC Format)', sub: 'Filled data template as prescribed by NAAC', icon: '📊', required: true },
+      { id: 'timetable_ssc', name: 'Time Table with Self-Study Slots', sub: 'Official timetable showing self-study provisions', icon: '🕐', required: true },
+      { id: 'library_facility', name: 'Library Facility Documents', sub: 'Library resources, e-resource subscriptions, INFLIBNET', icon: '📚', required: true },
+      { id: 'computer_lab', name: 'Computer Lab Records', sub: 'Computer lab usage records for self-study', icon: '💻', required: true },
+      { id: 'mentor_records', name: 'Mentoring / Guidance Records', sub: 'Documents showing teachers mentoring students for SSC', icon: '🧑‍🏫', required: false },
+      { id: 'swayam_nptel', name: 'SWAYAM / NPTEL Enrolment', sub: 'Evidence of students enrolled in SWAYAM/NPTEL', icon: '🌐', required: false },
+      { id: 'any_other_124', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m125: {
+    code: '1.2.5', ki: '1.2', type: 'QnM', weight: 7,
+    title: 'Students Completing Self-Study Courses',
+    desc: 'Percentage of students who have completed self-study courses (online/offline, beyond the curriculum) during the last five years.',
+    hasTable: true,
+    tableType: 'ssc',
+    docs: [
+      { id: 'data_template_125', name: 'Data Template (NAAC Format)', sub: 'Filled data template with completion numbers', icon: '📊', required: true },
+      { id: 'completion_certs_ssc', name: 'Self-Study Completion Certificates', sub: 'SWAYAM / NPTEL / MOOC certificates', icon: '🎖️', required: true },
+      { id: 'enrolled_completed', name: 'Enrolled & Completed List', sub: 'List of students enrolled and completed SSC', icon: '📋', required: true },
+      { id: 'any_other_125', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m131: {
+    code: '1.3.1', ki: '1.3', type: 'QlM', weight: 9,
+    title: 'Curriculum Providing Knowledge, Skills, Values & Attitudes',
+    desc: 'Curriculum provides opportunities for students to acquire and demonstrate knowledge, skills, values and attitudes. Describe curricular thrusts in 100 words each for: foundational understanding, procedural knowledge, competency application, and Emotional Intelligence/Critical Thinking skills.',
+    narrative: true,
+    narrativePrompt: 'Describe curricular thrusts (100 words each for each area):',
+    docs: [
+      { id: 'activity_list', name: 'List of Activities Conducted', sub: 'Activities supporting each learning outcome area', icon: '📋', required: true },
+      { id: 'activity_photos', name: 'Photographs of Activities', sub: 'Captioned photographs with date, showing student participation', icon: '📷', required: true },
+      { id: 'ei_ct_records', name: 'EI / Critical Thinking Activity Records', sub: 'Records of EI, critical thinking, communication activities', icon: '🧠', required: true },
+      { id: 'lesson_plans', name: 'Sample Lesson Plans', sub: 'Plans reflecting knowledge, skills and values integration', icon: '📝', required: false },
+      { id: 'documentary_evidence', name: 'Other Documentary Evidence', sub: 'Any supporting evidence for all four curricular thrust areas', icon: '📎', required: false },
+    ]
+  },
+  m132: {
+    code: '1.3.2', ki: '1.3', type: 'QlM', weight: 9,
+    title: 'Diversity in School Systems – National & International',
+    desc: 'Institution familiarises students with diversity in school system in India and internationally. Cover: development of school system, functioning of boards, functional differences, assessment systems, norms, state-wise variations, comparative perspective.',
+    narrative: true,
+    narrativePrompt: 'Describe how students are familiarised with diversity in Indian and international school systems (max 500 words):',
+    docs: [
+      { id: 'action_plan_132', name: 'Action Plan – School System Familiarisation', sub: 'Plan showing how diversity of school systems is covered', icon: '📋', required: true },
+      { id: 'school_visit_report', name: 'School Visit Reports', sub: 'Reports of visits to different types of schools', icon: '🏫', required: true },
+      { id: 'comparative_notes', name: 'Study Material / Notes', sub: 'Materials comparing different boards and school systems', icon: '📚', required: true },
+      { id: 'board_comparisons', name: 'Board Comparison Charts / Tables', sub: 'CBSE / State / ICSE / IB comparison documents', icon: '📊', required: false },
+      { id: 'seminar_workshop', name: 'Seminar / Workshop Reports', sub: 'Reports of seminars on school system diversity', icon: '🎤', required: false },
+      { id: 'any_other_132', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m133: {
+    code: '1.3.3', ki: '1.3', type: 'QlM', weight: 7,
+    title: 'Professional Readiness through Curricular Experiences',
+    desc: 'Students derive professionally relevant understanding from curricular experiences. Describe efforts to enable students to understand interconnectedness of learning engagements and professional readiness.',
+    narrative: true,
+    narrativePrompt: 'Describe efforts to enable students to develop professional readiness and interconnectedness (max 500 words):',
+    docs: [
+      { id: 'practicum_report', name: 'Teaching Practice / Practicum Report', sub: 'Reports of school internship and teaching practice', icon: '🏫', required: true },
+      { id: 'integration_evidence', name: 'Curricular Integration Evidence', sub: 'Evidence of interconnected learning across courses', icon: '🔗', required: true },
+      { id: 'professional_portfolio', name: 'Student Professional Portfolio Samples', sub: 'Sample portfolios showing professional development', icon: '📁', required: false },
+      { id: 'field_engagement', name: 'Field Engagement Records', sub: 'Records of community engagement, field visits', icon: '🌍', required: false },
+      { id: 'any_other_133', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m141: {
+    code: '1.4.1', ki: '1.4', type: 'QnM', weight: 6,
+    title: 'Structured Feedback Mechanism',
+    desc: 'Mechanism in place for obtaining structured semester-wise feedback on curriculum from students, teachers, employers, alumni, practice teaching schools.',
+    stakeholders: ['Students','Teachers','Employers','Alumni','Practice Teaching Schools / TEI'],
+    docs: [
+      { id: 'student_feedback', name: 'Student Feedback Forms (Filled)', sub: 'Sample filled-in student feedback forms', icon: '🎓', required: true },
+      { id: 'teacher_feedback', name: 'Teacher Feedback Forms (Filled)', sub: 'Sample filled-in faculty feedback forms', icon: '👨‍🏫', required: true },
+      { id: 'employer_feedback', name: 'Employer Feedback Forms (Filled)', sub: 'Sample filled-in employer feedback forms', icon: '🏢', required: true },
+      { id: 'alumni_feedback', name: 'Alumni Feedback Forms (Filled)', sub: 'Sample filled-in alumni feedback forms', icon: '🎓', required: true },
+      { id: 'pts_feedback', name: 'Practice Teaching School Feedback', sub: 'Feedback from practice teaching schools / TEI', icon: '🏫', required: true },
+      { id: 'blank_feedback', name: 'Blank Feedback Instruments', sub: 'Blank copies of all feedback forms used', icon: '📋', required: false },
+      { id: 'feedback_schedule', name: 'Feedback Collection Schedule', sub: 'Annual schedule for feedback collection', icon: '📅', required: false },
+      { id: 'any_other_141', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  },
+  m142: {
+    code: '1.4.2', ki: '1.4', type: 'QnM', weight: 9,
+    title: 'Feedback Analysis & Action Taken Report',
+    desc: 'Feedback collected from stakeholders is processed and action taken. Categories: (A) Collected, analysed, action taken & on website; (B) Collected, analysed, action taken; (C) Collected & analysed; (D) Collected; (E) Not collected.',
+    stakeholders: ['A – Collected, Analysed, Action Taken & Available on Website','B – Collected, Analysed, Action Taken','C – Collected and Analysed','D – Collected Only','E – Not Collected'],
+    docs: [
+      { id: 'analysis_report', name: 'Feedback Analysis Report', sub: 'Analysis report with seal & signature of Principal', icon: '📊', required: true },
+      { id: 'atr', name: 'Action Taken Report (ATR)', sub: 'ATR with seal & signature of Principal', icon: '✅', required: true },
+      { id: 'website_evidence', name: 'Website Evidence', sub: 'Screenshot/URL showing feedback & action on website', icon: '🌐', required: false },
+      { id: 'followup_evidence', name: 'Follow-up Evidence', sub: 'Evidence of implemented changes after feedback', icon: '🔄', required: false },
+      { id: 'any_other_142', name: 'Any Other Relevant Document', sub: 'Additional supporting evidence', icon: '📎', required: false },
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const state = {
+  driveConnected: false,
+  driveEmail: '',
+  uploadedFiles: {},   // key: metricId_yearIdx_docId
+  narratives: {},      // key: metricId_yearIdx
+  tableData: {},       // key: metricId_yearIdx_field
+  stakeholderChecks: {},
+};
+
+// ═══════════════════════════════════════════════════
+// BUILD METRIC PAGES
+// ═══════════════════════════════════════════════════
+function buildMetricPages() {
+  const container = document.getElementById('metric-pages-container');
+  Object.entries(METRICS).forEach(([id, m]) => {
+    const div = document.createElement('div');
+    div.className = 'page';
+    div.id = 'page-' + id;
+    div.innerHTML = buildMetricHTML(id, m);
+    container.appendChild(div);
+  });
+}
+
+function buildMetricHTML(id, m) {
+  let html = `
+    <div class="metric-header">
+      <div class="metric-code-big">Criterion I &rsaquo; Key Indicator ${m.ki} &rsaquo; Metric ${m.code}</div>
+      <h2>${m.code} – ${m.title}</h2>
+      <div class="metric-desc">${m.desc}</div>
+      <div class="metric-meta">
+        <span class="metric-tag tag-weight">⚖️ Weightage: ${m.weight}</span>
+        <span class="metric-tag tag-type">${m.type === 'QlM' ? '📝 Qualitative' : '📊 Quantitative'}</span>
+        <span class="metric-tag tag-ki">🔑 KI ${m.ki}</span>
+      </div>
+    </div>`;
+
+  if (m.stakeholders) {
+    html += `<div class="warn-box"><strong>Applicable Options for this Metric:</strong><br>
+      ${m.stakeholders.map((s,i) => `<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0;font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="chk_${id}_${i}" onchange="saveCheck('${id}',${i},this.checked)" style="accent-color:var(--naac-green);"> ${s}</label>`).join('')}
+    </div>`;
+  }
+
+  // Year tabs
+  html += `<div class="years-tabs">
+    ${YEARS.map((y,i) => `<button class="year-tab ${i===4?'active':''}" onclick="switchYear('${id}',${i})" id="ytab_${id}_${i}">${y}</button>`).join('')}
+  </div>`;
+
+  // Year panels
+  html += YEARS.map((yr, yi) => {
+    let panel = `<div class="year-panel ${yi===4?'active':''}" id="ypanel_${id}_${yi}">`;
+    panel += `<div class="section-title">📂 Documents for <span class="year-badge">${yr}</span></div>`;
+
+    // Data table
+    if (m.hasTable) panel += buildDataTable(id, m, yi, yr);
+
+    // Narrative
+    if (m.narrative) {
+      panel += `<div style="margin-bottom:16px;">
+        <label style="font-size:13px;font-weight:600;color:var(--naac-muted);display:block;margin-bottom:6px;">${m.narrativePrompt}</label>
+        <textarea class="notes-box" style="min-height:100px;" placeholder="Type your narrative here (max 500 words)..." id="narr_${id}_${yi}" oninput="saveNarrative('${id}',${yi},this.value)"></textarea>
+        <div style="font-size:11px;color:#9ca3af;margin-top:3px;" id="wc_${id}_${yi}">0 words</div>
+      </div>`;
+    }
+
+    panel += `<div class="doc-grid">`;
+    m.docs.forEach(doc => {
+      panel += buildDocCard(id, yi, doc);
+    });
+    panel += `</div>`;
+
+    // Year progress bar
+    panel += `<div class="year-summary">
+      <span class="ys-label">Year Upload Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pb_${id}_${yi}" style="width:0%"></div></div>
+      <span class="ys-pct" id="pct_${id}_${yi}">0%</span>
+    </div>`;
+
+    // Action buttons
+    panel += `<div class="action-bar">
+      <button class="btn btn-primary" onclick="saveToDrive('${id}',${yi},'${yr}')">☁️ Save to Google Drive (${yr})</button>
+      <button class="btn btn-secondary" onclick="markComplete('${id}',${yi},'${yr}')">✅ Mark Year Complete</button>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+    </div>`;
+
+    panel += `</div>`; // year-panel
+    return panel;
+  }).join('');
+
+  return html;
+}
+
+function buildDocCard(metricId, yearIdx, doc) {
+  const key = `${metricId}_${yearIdx}_${doc.id}`;
+  return `
+  <div class="doc-card" id="card_${key}">
+    <div class="doc-card-header">
+      <div class="doc-icon">${doc.icon}</div>
+      <div>
+        <div class="doc-name">${doc.name}</div>
+        <div class="doc-sub">${doc.sub}</div>
+      </div>
+      ${doc.required ? '<div class="doc-required">REQUIRED</div>' : ''}
+    </div>
+    <div class="doc-card-body">
+      <div class="upload-zone" id="zone_${key}" onclick="triggerUpload('${key}')">
+        <input type="file" id="file_${key}" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls"
+          onchange="handleFileSelect('${metricId}',${yearIdx},'${doc.id}',this)" onclick="event.stopPropagation()">
+        <div class="up-icon">📤</div>
+        <div class="up-text">Click to upload or drag & drop</div>
+        <div class="up-hint">PDF, DOC, DOCX, JPG, PNG, XLSX (max 25MB)</div>
+      </div>
+      <div class="file-info" id="fileinfo_${key}" style="display:none;">
+        <span class="fi-name" id="fname_${key}">-</span>
+        <span class="fi-size" id="fsize_${key}">-</span>
+        <button class="file-remove" onclick="removeFile('${metricId}',${yearIdx},'${doc.id}')" title="Remove file">✕</button>
+      </div>
+      <button class="drive-btn" onclick="saveOneFile('${metricId}',${yearIdx},'${doc.id}','${doc.name}')">
+        <svg viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L28 48.15H0c0 1.55.4 3.1 1.2 4.5l5.4 14.2z" fill="#0066DA"/><path d="M43.65 25L29 0c-1.35.8-2.5 1.9-3.3 3.3L1.2 43.65A9.06 9.06 0 000 48.15h28l15.65-23.15z" fill="#00AC47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59l5.4 14.5 9.15 9.3z" fill="#EA4335"/><path d="M43.65 25L58.3 0c-1.55 0-3.1.4-4.5 1.2L28.05 25H43.65z" fill="#00832D"/><path d="M59.3 48.15H28L13.35 76.8c1.4.8 2.95 1.2 4.5 1.2h51.2c1.55 0 3.1-.4 4.5-1.2L59.3 48.15z" fill="#2684FC"/><path d="M73.4 26.35L59.1 1.2C58.3-.2 57.15-1.3 55.8-2.1L43.65 25l15.65 23.15H87.3c0-1.55-.4-3.1-1.2-4.5L73.4 26.35z" fill="#FFBA00"/></svg>
+        Save to Drive
+      </button>
+      <textarea class="notes-box" placeholder="Notes for this document..." id="notes_${key}" oninput="saveNote('${key}',this.value)"></textarea>
+    </div>
+  </div>`;
+}
+
+function buildDataTable(id, m, yi, yr) {
+  const type = m.tableType;
+  if (type === 'elective') {
+    return `<table class="data-table" style="margin-bottom:18px;">
+      <tr><th>Programme</th><th>Electives Offered</th><th>Electives in Syllabus</th><th>% Offered</th></tr>
+      <tr><td>B.Ed.</td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_bed_off" oninput="calcElective('${id}',${yi},'bed')" placeholder="0"></td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_bed_syl" oninput="calcElective('${id}',${yi},'bed')" placeholder="0"></td>
+        <td id="dt_${id}_${yi}_bed_pct" style="font-weight:600;color:var(--naac-green);">—</td>
+      </tr>
+      <tr><td>M.Ed. (if applicable)</td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_med_off" oninput="calcElective('${id}',${yi},'med')" placeholder="0"></td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_med_syl" oninput="calcElective('${id}',${yi},'med')" placeholder="0"></td>
+        <td id="dt_${id}_${yi}_med_pct" style="font-weight:600;color:var(--naac-green);">—</td>
+      </tr>
+    </table>`;
+  } else if (type === 'vac') {
+    return `<table class="data-table" style="margin-bottom:18px;">
+      <tr><th>Year</th><th>No. of VACs Offered</th><th>Course Names</th></tr>
+      <tr><td>${yr}</td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_vac_num" placeholder="0" style="width:70px;"></td>
+        <td><input type="text" id="dt_${id}_${yi}_vac_names" placeholder="e.g. Digital Literacy, Yoga Education" style="width:100%;max-width:320px;"></td>
+      </tr>
+    </table>`;
+  } else if (type === 'vac_students') {
+    return `<table class="data-table" style="margin-bottom:18px;">
+      <tr><th>Year</th><th>Students Enrolled in VAC</th><th>Total Students on Roll</th><th>Percentage</th></tr>
+      <tr><td>${yr}</td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_vac_enr" oninput="calcPct('${id}',${yi},'vac_enr','roll')" placeholder="0"></td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_roll" oninput="calcPct('${id}',${yi},'vac_enr','roll')" placeholder="0"></td>
+        <td id="dt_${id}_${yi}_pct" style="font-weight:600;color:var(--naac-green);">—</td>
+      </tr>
+    </table>`;
+  } else if (type === 'ssc') {
+    return `<table class="data-table" style="margin-bottom:18px;">
+      <tr><th>Year</th><th>Students Completed SSC</th><th>Total Students on Roll</th><th>Percentage</th></tr>
+      <tr><td>${yr}</td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_ssc_comp" oninput="calcPct('${id}',${yi},'ssc_comp','ssc_roll')" placeholder="0"></td>
+        <td><input type="number" min="0" id="dt_${id}_${yi}_ssc_roll" oninput="calcPct('${id}',${yi},'ssc_comp','ssc_roll')" placeholder="0"></td>
+        <td id="dt_${id}_${yi}_pct" style="font-weight:600;color:var(--naac-green);">—</td>
+      </tr>
+    </table>`;
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  const nav = document.getElementById('nav-' + id);
+  if (page) page.classList.add('active');
+  if (nav) nav.classList.add('active');
+
+  const titles = {
+    dashboard: ['Dashboard & Overview', 'NAAC SSR → Criterion I → Overview'],
+  };
+  const m = METRICS[id];
+  if (m) {
+    document.getElementById('topTitle').textContent = `${m.code} – ${m.title}`;
+    document.getElementById('topBreadcrumb').textContent = `NAAC SSR → Criterion I → KI ${m.ki} → Metric ${m.code}`;
+  } else {
+    document.getElementById('topTitle').textContent = 'Dashboard & Overview';
+    document.getElementById('topBreadcrumb').textContent = 'NAAC SSR → Criterion I → Overview';
+  }
+  window.scrollTo(0,0);
+}
+
+function switchYear(metricId, yearIdx) {
+  YEARS.forEach((_,i) => {
+    const tab = document.getElementById(`ytab_${metricId}_${i}`);
+    const panel = document.getElementById(`ypanel_${metricId}_${i}`);
+    if (tab) tab.classList.toggle('active', i === yearIdx);
+    if (panel) panel.classList.toggle('active', i === yearIdx);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// FILE HANDLING
+// ═══════════════════════════════════════════════════
+function triggerUpload(key) {
+  document.getElementById('file_' + key).click();
+}
+
+function handleFileSelect(metricId, yearIdx, docId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const key = `${metricId}_${yearIdx}_${docId}`;
+  state.uploadedFiles[key] = { name: file.name, size: file.size, file };
+  const zone = document.getElementById('zone_' + key);
+  const info = document.getElementById('fileinfo_' + key);
+  const fname = document.getElementById('fname_' + key);
+  const fsize = document.getElementById('fsize_' + key);
+  zone.classList.add('has-file');
+  zone.querySelector('.up-text').textContent = '✅ File selected';
+  info.style.display = 'flex';
+  fname.textContent = file.name;
+  fsize.textContent = formatSize(file.size);
+  updateProgress(metricId, yearIdx);
+  showToast(`"${file.name}" ready to upload`, 'success');
+}
+
+function removeFile(metricId, yearIdx, docId) {
+  const key = `${metricId}_${yearIdx}_${docId}`;
+  delete state.uploadedFiles[key];
+  const zone = document.getElementById('zone_' + key);
+  const info = document.getElementById('fileinfo_' + key);
+  zone.classList.remove('has-file');
+  zone.querySelector('.up-text').textContent = 'Click to upload or drag & drop';
+  info.style.display = 'none';
+  document.getElementById('file_' + key).value = '';
+  updateProgress(metricId, yearIdx);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function updateProgress(metricId, yearIdx) {
+  const m = METRICS[metricId];
+  const required = m.docs.filter(d => d.required);
+  const uploaded = required.filter(d => state.uploadedFiles[`${metricId}_${yearIdx}_${d.id}`]);
+  const pct = required.length ? Math.round((uploaded.length / required.length) * 100) : 0;
+  const bar = document.getElementById(`pb_${metricId}_${yearIdx}`);
+  const pctEl = document.getElementById(`pct_${metricId}_${yearIdx}`);
+  if (bar) bar.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+function saveNote(key, value) { state[`note_${key}`] = value; }
+function saveNarrative(metricId, yearIdx, value) {
+  state.narratives[`${metricId}_${yearIdx}`] = value;
+  const wc = document.getElementById(`wc_${metricId}_${yearIdx}`);
+  if (wc) wc.textContent = value.trim().split(/\s+/).filter(w=>w).length + ' words';
+}
+function saveCheck(metricId, idx, val) {
+  state.stakeholderChecks[`${metricId}_${idx}`] = val;
+}
+
+// ═══════════════════════════════════════════════════
+// CALCULATIONS
+// ═══════════════════════════════════════════════════
+function calcElective(id, yi, prog) {
+  const off = parseFloat(document.getElementById(`dt_${id}_${yi}_${prog}_off`)?.value) || 0;
+  const syl = parseFloat(document.getElementById(`dt_${id}_${yi}_${prog}_syl`)?.value) || 0;
+  const pctEl = document.getElementById(`dt_${id}_${yi}_${prog}_pct`);
+  if (pctEl) pctEl.textContent = syl > 0 ? ((off/syl)*100).toFixed(1) + '%' : '—';
+}
+function calcPct(id, yi, numField, denField) {
+  const num = parseFloat(document.getElementById(`dt_${id}_${yi}_${numField}`)?.value) || 0;
+  const den = parseFloat(document.getElementById(`dt_${id}_${yi}_${denField}`)?.value) || 0;
+  const pctEl = document.getElementById(`dt_${id}_${yi}_pct`);
+  if (pctEl) pctEl.textContent = den > 0 ? ((num/den)*100).toFixed(2) + '%' : '—';
+}
+
+// ═══════════════════════════════════════════════════
+// GOOGLE DRIVE (OAuth2 PKCE flow)
+// ═══════════════════════════════════════════════════
+const DRIVE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with actual client ID
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
+let accessToken = null;
+let driveFolderId = null;
+
+function showAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('authModal').style.display = 'none'; }
+
+function connectDrive() {
+  closeModal();
+  // Launch Google OAuth popup
+  const params = new URLSearchParams({
+    client_id: DRIVE_CLIENT_ID,
+    redirect_uri: window.location.href.split('?')[0].split('#')[0],
+    response_type: 'token',
+    scope: DRIVE_SCOPES,
+    include_granted_scopes: 'true',
+    state: 'naac_drive_auth',
+  });
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+  const popup = window.open(authUrl, 'google_auth', 'width=500,height=600,scrollbars=yes');
+  if (!popup) {
+    showToast('Popup blocked! Please allow popups for this site.', 'error');
+    return;
+  }
+  // Poll popup for redirect with token
+  const poll = setInterval(() => {
+    try {
+      const url = popup.location.href;
+      if (url && url.includes('access_token')) {
+        clearInterval(poll);
+        popup.close();
+        const hash = url.split('#')[1];
+        const token = new URLSearchParams(hash).get('access_token');
+        if (token) {
+          accessToken = token;
+          setDriveConnected(true);
+          createDriveFolder();
+        }
+      }
+    } catch(e) {}
+    if (popup.closed) { clearInterval(poll); }
+  }, 500);
+}
+
+function setDriveConnected(status, email) {
+  state.driveConnected = status;
+  const dot = document.getElementById('driveDot');
+  const text = document.getElementById('driveStatusText');
+  if (status) {
+    dot.classList.add('connected');
+    text.textContent = email ? `Drive: ${email}` : '✅ Drive Connected';
+    showToast('Google Drive connected successfully!', 'success');
+  }
+}
+
+async function createDriveFolder() {
+  if (!accessToken) return;
+  try {
+    // Create main folder
+    const res = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'NAAC_SSR_Criterion_I', mimeType: 'application/vnd.google-apps.folder' })
+    });
+    const data = await res.json();
+    driveFolderId = data.id;
+    showToast('📁 Drive folder "NAAC_SSR_Criterion_I" created!', 'success');
+  } catch(e) {
+    showToast('Could not create Drive folder. Check permissions.', 'error');
+  }
+}
+
+async function saveToDrive(metricId, yearIdx, yr) {
+  if (!state.driveConnected || !accessToken) {
+    showToast('Please connect Google Drive first.', 'error');
+    showAuthModal();
+    return;
+  }
+  const m = METRICS[metricId];
+  const files = m.docs.filter(d => state.uploadedFiles[`${metricId}_${yearIdx}_${d.id}`]);
+  if (files.length === 0) { showToast('No files selected for this year.', 'error'); return; }
+
+  showToast(`Uploading ${files.length} file(s) to Drive...`);
+  // Create subfolder for metric/year
+  try {
+    const subRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: `Metric_${m.code.replace(/\./g,'_')}_${yr}`,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: driveFolderId ? [driveFolderId] : []
+      })
+    });
+    const subFolder = await subRes.json();
+    const subFolderId = subFolder.id;
+
+    for (const d of files) {
+      const key = `${metricId}_${yearIdx}_${d.id}`;
+      const fileObj = state.uploadedFiles[key].file;
+      const metadata = {
+        name: `${m.code}_${yr}_${d.name.replace(/[^a-zA-Z0-9]/g,'_')}.${fileObj.name.split('.').pop()}`,
+        parents: [subFolderId]
+      };
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], {type:'application/json'}));
+      form.append('file', fileObj);
+      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        body: form
+      });
+    }
+    showToast(`✅ ${files.length} file(s) saved to Drive for ${yr}!`, 'success');
+  } catch(e) {
+    showToast('Upload failed. Check Drive connection.', 'error');
+  }
+}
+
+async function saveOneFile(metricId, yearIdx, docId, docName) {
+  const key = `${metricId}_${yearIdx}_${docId}`;
+  if (!state.uploadedFiles[key]) { showToast('Please select a file first.', 'error'); return; }
+  if (!state.driveConnected || !accessToken) { showToast('Please connect Google Drive first.', 'error'); showAuthModal(); return; }
+  const m = METRICS[metricId];
+  const fileObj = state.uploadedFiles[key].file;
+  const yr = YEARS[yearIdx];
+  const metadata = {
+    name: `${m.code}_${yr}_${docName.replace(/[^a-zA-Z0-9]/g,'_')}.${fileObj.name.split('.').pop()}`,
+    parents: driveFolderId ? [driveFolderId] : []
+  };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], {type:'application/json'}));
+  form.append('file', fileObj);
+  try {
+    await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}` },
+      body: form
+    });
+    showToast(`✅ "${docName}" saved to Drive!`, 'success');
+  } catch(e) {
+    showToast('Upload failed.', 'error');
+  }
+}
+
+function markComplete(metricId, yearIdx, yr) {
+  showToast(`✅ ${yr} marked as complete for Metric ${METRICS[metricId].code}!`, 'success');
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function showToast(msg, type) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = `toast ${type || ''}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ═══════════════════════════════════════════════════
+// DRAG & DROP
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildMetricPages();
+  document.querySelectorAll('.upload-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const fileInput = zone.querySelector('input[type="file"]');
+      if (fileInput && e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+});
+
+// Handle OAuth redirect token in hash
+window.addEventListener('load', () => {
+  if (window.location.hash.includes('access_token')) {
+    const hash = window.location.hash.slice(1);
+    const token = new URLSearchParams(hash).get('access_token');
+    if (token) {
+      accessToken = token;
+      setDriveConnected(true);
+      history.replaceState(null, '', window.location.pathname);
+      createDriveFolder();
+    }
+  }
+});
+</script>
+</body>
+</html>
